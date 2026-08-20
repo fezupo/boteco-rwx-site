@@ -1,0 +1,17 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Página não encontrada" description="Essa rodada não existe no Boteco RWX." noindex={true}>
+  <section class="page-hero section-pad error-page">
+    <div class="container narrow">
+      <span class="eyebrow">ERRO 404 / FICHA PERDIDA</span>
+      <h1>Essa mesa não existe.</h1>
+      <p class="large-copy">Você abriu uma porta que não leva a nenhuma rodada. Volta pro balcão e escolhe outro caminho.</p>
+      <div class="hero-actions">
+        <a class="button button-primary" href="/">Voltar ao Boteco</a>
+        <a class="button button-ghost" href="/lives">Ver as lives</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
