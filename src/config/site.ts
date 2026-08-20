@@ -1,3 +1,5 @@
+import { withBase } from '../utils/paths';
+
 export type ExternalLink = {
   label: string;
   url: string | null;
@@ -15,12 +17,12 @@ export const site = {
   description: 'Games, anime, tokusatsu, música e conversa sem frescura.',
   slogan: 'Aqui o freguês não só assiste. Ele senta à mesa.',
   nav: [
-    { label: 'Início', href: '/' },
-    { label: 'Lives', href: '/lives' },
-    { label: 'Agenda', href: '/agenda' },
-    { label: 'Cortes', href: '/cortes' },
-    { label: 'A Mesa', href: '/mesa' },
-    { label: 'Sobre', href: '/sobre' },
+    { label: 'Início', href: withBase('/') },
+    { label: 'Lives', href: withBase('/lives') },
+    { label: 'Agenda', href: withBase('/agenda') },
+    { label: 'Cortes', href: withBase('/cortes') },
+    { label: 'A Mesa', href: withBase('/mesa') },
+    { label: 'Sobre', href: withBase('/sobre') },
   ],
   external: externalLinks,
 } as const;
