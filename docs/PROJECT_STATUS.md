@@ -8,41 +8,39 @@
 
 ### Concluído
 
-- Repositório privado separado da MESA VIP.
-- `main` inicializada como linha estável.
-- Branch de desenvolvimento criada.
+- Repositório separado da MESA VIP.
+- Repositório público para permitir GitHub Pages no plano atual.
+- `main` mantida como linha estável, sem merge do vertical slice.
+- Branch `dev/vertical-slice-v1` mantém o protótipo ativo.
 - Landmark 00 registrado.
-- Astro + TypeScript + CSS moderno.
+- Astro + TypeScript + HTML semântico + CSS próprio.
 - Home implementada.
 - Páginas Lives, Agenda, Cortes, A Mesa, Sobre e 404 implementadas.
 - Navegação desktop e mobile sem JavaScript obrigatório.
-- Navegação com `aria-current`, foco de teclado e suporte ao subpath do GitHub Pages.
+- `aria-current`, foco de teclado e suporte ao subpath do GitHub Pages.
 - LIVE 05 cadastrada como próxima rodada.
 - Hero reage ao estado da live sem JavaScript cliente.
 - Links externos centralizados em configuração.
 - Redes sem URL não aparecem publicamente.
 - Visual arcade / boteco / neon / CRT.
 - Plano de fundo oficial das transmissões adotado como ambiente visual do Hero.
-- Asset oficial WebP versionado de verdade no Git em `public/assets/boteco-rwx-background.webp`.
-- Derivado leve de protótipo em 1024 px usado no repositório para reduzir transferência.
-- CSS responsivo preparado para o asset oficial com overlay de contraste e reposicionamento mobile.
-- Metadados básicos de SEO e compartilhamento adicionados.
-- Favicon SVG leve adicionado.
-- `robots.txt` mínimo adicionado.
+- Asset oficial WebP versionado em `public/assets/boteco-rwx-background.webp`.
+- CSS responsivo com overlay de contraste e reposicionamento mobile.
+- SEO e metadata inicial.
+- Favicon SVG e `robots.txt`.
 - `prefers-reduced-motion` e `prefers-reduced-transparency` respeitados.
-- View Transitions progressivas adicionadas sem framework cliente obrigatório.
-- Seções fora da primeira dobra usam `content-visibility` para reduzir trabalho inicial do navegador.
-- Guia de manutenção de conteúdo criado em `docs/CONTENT_GUIDE.md`.
-- Performance budget automatizado para JavaScript e CSS.
-- CI gera artefato estático de build quando executada.
-- Runtime da CI alinhado para Node 22.19+.
-- Configuração Astro preparada para GitHub Pages em `/boteco-rwx-site/`.
+- View Transitions progressivas sem framework cliente obrigatório.
+- `content-visibility` nas seções fora da primeira dobra.
+- Guia de conteúdo em `docs/CONTENT_GUIDE.md`.
+- Performance budget automatizado.
+- Runtime Node 22.19+.
+- Astro preparado para `/boteco-rwx-site/`.
 - Helper `withBase()` aplicado a navegação, Hero, assets e links internos relevantes.
-- Workflow `.github/workflows/pages.yml` criado para build, budget, artifact e deploy no GitHub Pages.
-- Checkpoint anterior validado com sucesso: Astro/TypeScript, build de produção, performance budget e artefato estático.
-- Protótipo navegável offline montado a partir do build verde e do fundo oficial otimizado.
+- GitHub Pages ativado manualmente com Source = GitHub Actions.
+- CI da DEV separada do deploy de Pages.
+- Workflow da `main` preparado para publicar automaticamente o conteúdo da DEV depois de CI verde, sem merge do produto.
 
-### Decisões congeladas por enquanto
+## Decisões congeladas por enquanto
 
 - Carmack como filosofia de engenharia.
 - Regra: **Magia é permitida. Desperdício não.**
@@ -55,8 +53,8 @@
 - YouTube é o único destino externo previsto inicialmente.
 - Outras redes ficam preparadas, porém invisíveis até existirem.
 - Will e KV entram no processo quando houver experiência concreta para avaliar.
-- O fundo oficial não será repetido ao longo de toda a página; ele ambienta o Hero e as seções seguintes usam superfícies derivadas mais leves.
-- A `main` não recebe o vertical slice enquanto o PR continuar Draft.
+- O fundo oficial ambienta o Hero; as seções seguintes usam superfícies derivadas mais leves.
+- PR #1 permanece Draft e o vertical slice não é mergeado sem autorização explícita.
 
 ## Primeiro vertical slice
 
@@ -71,49 +69,48 @@ O site continua funcional mesmo sem JavaScript obrigatório.
 
 ## Asset oficial
 
-O fundo do Hero está versionado na branch no caminho:
+O fundo do Hero está versionado em:
 
 `public/assets/boteco-rwx-background.webp`
 
-A inclusão foi feita como blob Git binário real, sem base64 persistido, sem chunk temporário e sem depender do ZIP offline.
+A inclusão foi feita como blob Git binário real, sem base64 persistido e sem depender do ZIP offline.
 
-## GitHub Pages
+## Publicação do protótipo
 
-O repositório e o código já estão preparados para publicação em:
+Destino do GitHub Pages:
 
 `https://fezupo.github.io/boteco-rwx-site/`
 
-O workflow de Pages chegou a executar no GitHub Actions, mas foi interrompido no passo `Configure GitHub Pages` porque o recurso Pages ainda não foi habilitado uma vez nas configurações do repositório.
+Arquitetura de homologação:
 
-Bloqueio externo atual:
+1. push em `dev/vertical-slice-v1` dispara `site-ci`;
+2. CI executa Astro/TypeScript, build e performance budget;
+3. se a CI terminar verde, o workflow `pages-preview` que vive na `main` é disparado por `workflow_run`;
+4. o workflow da `main` faz checkout da DEV, recompila o mesmo protótipo e publica no ambiente `github-pages`;
+5. o produto continua fora da `main` até autorização de merge.
 
-- GitHub Pages precisa ser habilitado em **Settings > Pages > Build and deployment > Source: GitHub Actions**.
-- Depois dessa ativação única, o workflow já versionado pode ser reexecutado sem alteração estrutural do projeto.
+Essa arquitetura existe porque o ambiente `github-pages` criado pelo GitHub protege por padrão a branch principal. O deploy é autorizado pela `main`, mas o conteúdo publicado continua vindo da DEV.
 
 ## Validação
 
-Último checkpoint completo anterior à tentativa de Pages: **verde**.
+Últimas validações do código do protótipo: **verdes**.
 
-Incluiu:
+Incluem:
 
-- Astro/TypeScript check: sucesso, sem erros;
+- Astro/TypeScript check: sucesso;
 - build de produção: sucesso;
 - 7 rotas estáticas geradas;
 - performance budget: sucesso;
-- artefato estático gerado;
-- Node 22.19 alinhado com o ecossistema atual.
-
-A execução de Pages mais recente não chegou ao check/build porque o próprio GitHub encerrou antes, durante a configuração de Pages desabilitado. Isso não representa falha do código do site.
+- artefato estático: sucesso;
+- Node 22.19 alinhado.
 
 ## Próximos passos
 
-1. Habilitar GitHub Pages uma única vez usando Source = GitHub Actions.
-2. Reexecutar o workflow `deploy-pages-preview`.
-3. Confirmar build, budget e deploy verdes.
-4. Abrir a URL do protótipo em desktop e celular.
-5. Ajustar texto, densidade, crop e hierarquia pela sensação real em tela.
-6. Cadastrar a URL oficial do YouTube quando definida para o site.
-7. Inserir Will e KV para feedback quando o protótipo estiver maduro o suficiente.
+1. Confirmar o primeiro deploy automático da nova arquitetura.
+2. Abrir a URL do protótipo em desktop e celular.
+3. Ajustar texto, densidade, crop e hierarquia pela sensação real em tela.
+4. Cadastrar a URL oficial do YouTube quando definida para o site.
+5. Inserir Will e KV para feedback quando o protótipo estiver maduro o suficiente.
 
 ## Regra de merge
 
