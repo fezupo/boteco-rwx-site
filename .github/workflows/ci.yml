@@ -29,6 +29,9 @@ jobs:
       - name: Production build
         run: npm run build
 
+      - name: Carmack performance budget
+        run: npm run budget
+
       - name: Upload static build artifact
         uses: actions/upload-artifact@v4
         with:
