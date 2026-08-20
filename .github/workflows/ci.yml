@@ -14,13 +14,25 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
+
       - name: Install dependencies
         run: npm install
+
       - name: Type and Astro check
         run: npm run check
+
       - name: Production build
         run: npm run build
+
+      - name: Upload static build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: boteco-rwx-site-static
+          path: dist/
+          if-no-files-found: error
+          retention-days: 7
