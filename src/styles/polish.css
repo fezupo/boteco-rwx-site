@@ -1,5 +1,9 @@
 @layer base, components, utilities;
 
+@view-transition {
+  navigation: auto;
+}
+
 @layer base {
   ::selection {
     background: rgba(255, 180, 36, .28);
@@ -8,6 +12,14 @@
 
   [id] {
     scroll-margin-top: 88px;
+  }
+
+  ::view-transition-old(root) {
+    animation: boteco-out 120ms ease both;
+  }
+
+  ::view-transition-new(root) {
+    animation: boteco-in 180ms ease both;
   }
 }
 
@@ -35,6 +47,14 @@
     color: var(--amber);
     border-color: rgba(255,180,36,.35);
   }
+
+  @keyframes boteco-out {
+    to { opacity: 0; transform: translateY(-3px); }
+  }
+
+  @keyframes boteco-in {
+    from { opacity: 0; transform: translateY(5px); }
+  }
 }
 
 @layer utilities {
@@ -54,6 +74,13 @@
 
     body::before {
       opacity: .03;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    ::view-transition-old(root),
+    ::view-transition-new(root) {
+      animation: none;
     }
   }
 }
