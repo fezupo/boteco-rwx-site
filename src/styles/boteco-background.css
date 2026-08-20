@@ -9,7 +9,7 @@
         rgba(5, 4, 5, .48) 47%,
         rgba(5, 4, 5, .70) 69%,
         rgba(5, 4, 5, .38) 100%),
-      url('/assets/boteco-rwx-background.webp') center center / cover no-repeat;
+      var(--hero-background) center center / cover no-repeat;
     border-bottom: 1px solid rgba(255,255,255,.10);
   }
 
