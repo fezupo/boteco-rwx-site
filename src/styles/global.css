@@ -95,25 +95,7 @@
   .button-ghost { border: 1px solid var(--line); background: rgba(255,255,255,.035); }
   .button-ghost:hover { border-color: rgba(255,255,255,.28); }
 
-  .hero-glow { position: absolute; width: 35rem; aspect-ratio: 1; border-radius: 50%; filter: blur(100px); opacity: .12; z-index: -1; }
-  .hero-glow-red { left: -18rem; top: 10%; background: var(--red); }
-  .hero-glow-blue { right: -17rem; bottom: 0; background: var(--blue); }
-
-  .hero-machine { position: relative; border: 1px solid rgba(255,255,255,.18); border-radius: 28px; padding: 1rem; background: linear-gradient(145deg, rgba(255,255,255,.09), rgba(255,255,255,.025)); box-shadow: 0 35px 100px rgba(0,0,0,.55), inset 0 1px rgba(255,255,255,.1); transform: perspective(1000px) rotateY(-2deg); }
-  .machine-topline { display: flex; justify-content: space-between; gap: 1rem; padding: .2rem .25rem .9rem; font-size: .72rem; font-weight: 900; letter-spacing: .12em; }
-  .status-dot { color: var(--amber); }
-  .status-dot::before { content: ''; display: inline-block; width: 7px; height: 7px; margin-right: .45rem; border-radius: 50%; background: var(--red); box-shadow: 0 0 14px var(--red); animation: pulse 2.2s ease-in-out infinite; }
-  .versus-stage { min-height: 290px; position: relative; display: grid; grid-template-columns: 1fr 1fr; overflow: hidden; border-radius: 20px; background: #09090c; border: 1px solid rgba(255,255,255,.08); }
-  .stage-side { display: flex; flex-direction: column; justify-content: flex-end; padding: clamp(1.2rem, 3vw, 2rem); }
-  .stage-side span { font-size: .68rem; font-weight: 900; letter-spacing: .2em; margin-bottom: .4rem; }
-  .stage-side b { font-size: clamp(2rem, 4vw, 3.6rem); line-height: .82; letter-spacing: -.07em; }
-  .stage-red { background: radial-gradient(circle at 20% 20%, rgba(255,120,40,.35), transparent 33%), linear-gradient(135deg, rgba(255,60,31,.38), rgba(30,5,5,.8)); }
-  .stage-blue { text-align: right; align-items: flex-end; background: radial-gradient(circle at 80% 20%, rgba(43,199,255,.35), transparent 33%), linear-gradient(225deg, rgba(43,199,255,.33), rgba(4,8,28,.82)); }
-  .stage-vs { position: absolute; inset: 50% auto auto 50%; transform: translate(-50%,-50%) rotate(-7deg); font-size: clamp(3.5rem, 8vw, 6rem); font-weight: 1000; color: #fff; text-shadow: -4px 0 var(--red), 4px 0 var(--blue), 0 0 25px #fff; z-index: 2; }
-  .machine-copy { padding: 1.2rem .4rem .35rem; }
-  .machine-copy > span, .ticket-kicker { color: var(--amber); font-weight: 900; text-transform: uppercase; letter-spacing: .08em; font-size: .72rem; }
-  .machine-copy h2 { margin: .35rem 0 .55rem; font-size: clamp(1.7rem, 3vw, 2.7rem); }
-  .machine-copy p { font-size: .94rem; }
+  .ticket-kicker { color: var(--amber); font-weight: 900; text-transform: uppercase; letter-spacing: .08em; font-size: .72rem; }
   .scroll-cue { position: absolute; bottom: 1.2rem; left: 50%; transform: translateX(-50%); color: var(--muted); text-decoration: none; font-size: .7rem; font-weight: 900; letter-spacing: .16em; }
 
   .section-heading { max-width: 760px; margin-bottom: 2.2rem; }
@@ -170,8 +152,6 @@
   .footer-links { display: flex; gap: .8rem; }
   .footer-links a { color: var(--muted); }
   .footer-line { grid-column: 1 / -1; padding-top: 1rem; border-top: 1px solid var(--line); font-size: .85rem; }
-
-  @keyframes pulse { 50% { opacity: .35; transform: scale(.82); } }
 }
 
 @layer utilities {
@@ -181,7 +161,6 @@
     .hero { min-height: auto; padding-top: 5rem; }
     .hero-grid, .split-feature { grid-template-columns: 1fr; }
     .hero-copy h1 { max-width: 13ch; }
-    .hero-machine { transform: none; }
     .topic-grid { grid-template-columns: repeat(2,1fr); }
     .crew-grid { grid-template-columns: 1fr; }
     .bar-callout { grid-template-columns: 1fr; }
@@ -194,8 +173,6 @@
     .section-pad { padding: 4rem 0; }
     .hero { padding-top: 4.5rem; }
     .hero-actions .button { width: 100%; }
-    .versus-stage { min-height: 250px; }
-    .stage-side { padding: 1rem; }
     .topic-grid { grid-template-columns: 1fr; }
     .topic-card { min-height: 220px; }
     .principles-grid { grid-template-columns: 1fr; }
