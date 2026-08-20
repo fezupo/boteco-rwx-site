@@ -3,41 +3,23 @@ import { featuredLive } from '../data/lives';
 ---
 
 <section class="hero section-pad">
-  <div class="hero-glow hero-glow-red" aria-hidden="true"></div>
-  <div class="hero-glow hero-glow-blue" aria-hidden="true"></div>
   <div class="container hero-grid">
     <div class="hero-copy reveal">
-      <span class="eyebrow">A MESA ESTÁ SENDO PREPARADA</span>
-      <h1>Um boteco digital para quem ainda gosta de <em>conversa de verdade.</em></h1>
-      <p class="hero-lead">Games, anime, tokusatsu, música e resenha sem transformar tudo em palestra.</p>
+      <span class="eyebrow">BEM-VINDO AO BOTECO</span>
+      <h1>Conversa nerd com <em>permissão total.</em></h1>
+      <p class="hero-lead">Games, anime, tokusatsu, música e resenha com personalidade, sem transformar tudo em palestra.</p>
+
+      <div class="hero-live-strip" aria-label={`Próxima rodada: Live ${featuredLive.number}, ${featuredLive.title}`}>
+        <span>PRÓXIMA RODADA</span>
+        <strong>LIVE {String(featuredLive.number).padStart(2, '0')} · {featuredLive.title}</strong>
+        <small>{featuredLive.kicker}</small>
+      </div>
+
       <div class="hero-actions">
         <a class="button button-primary" href="/agenda">Ver próxima rodada</a>
         <a class="button button-ghost" href="/sobre">Conhecer o Boteco</a>
       </div>
       <p class="hero-slogan">Aqui o freguês não só assiste. <strong>Ele senta à mesa.</strong></p>
-    </div>
-
-    <div class="hero-machine reveal" aria-label={`Live ${featuredLive.number}: ${featuredLive.title}`}>
-      <div class="machine-topline">
-        <span>LIVE {String(featuredLive.number).padStart(2, '0')}</span>
-        <span class="status-dot">PRÓXIMA RODADA</span>
-      </div>
-      <div class="versus-stage" aria-hidden="true">
-        <div class="stage-side stage-red">
-          <span>ARCADE</span>
-          <b>FINAL<br/>FIGHT</b>
-        </div>
-        <div class="stage-vs">VS</div>
-        <div class="stage-side stage-blue">
-          <span>CONSOLE</span>
-          <b>STREETS<br/>OF RAGE</b>
-        </div>
-      </div>
-      <div class="machine-copy">
-        <span>{featuredLive.kicker}</span>
-        <h2>{featuredLive.title}</h2>
-        <p>{featuredLive.description}</p>
-      </div>
     </div>
   </div>
   <a class="scroll-cue" href="#rodada">DESCE PRO BALCÃO ↓</a>
