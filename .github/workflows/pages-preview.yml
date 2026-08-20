@@ -1,9 +1,10 @@
 name: pages-preview
 
 on:
-  workflow_run:
-    workflows: ["site-ci"]
-    types: [completed]
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/pages-preview.yml'
   workflow_dispatch:
 
 permissions:
@@ -17,10 +18,6 @@ concurrency:
 
 jobs:
   build:
-    if: >-
-      github.event_name == 'workflow_dispatch' ||
-      (github.event.workflow_run.conclusion == 'success' &&
-       github.event.workflow_run.head_branch == 'dev/vertical-slice-v1')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout DEV prototype
