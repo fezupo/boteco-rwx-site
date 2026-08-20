@@ -15,11 +15,32 @@ import { featuredLive } from '../data/lives';
 
   <section class="section-pad section-dark">
     <div class="container">
-      <SectionHeading eyebrow="EM DESTAQUE" title={`LIVE ${String(featuredLive.number).padStart(2, '0')}: ${featuredLive.title}`} text={featuredLive.description} />
-      <div class="empty-panel">
-        <strong>Arquivo em montagem</strong>
-        <p>As rodadas anteriores serão organizadas aqui com contexto, tema e acesso direto quando os links oficiais forem cadastrados.</p>
-      </div>
+      <SectionHeading
+        eyebrow="EM DESTAQUE"
+        title={`LIVE ${String(featuredLive.number).padStart(2, '0')}: ${featuredLive.title}`}
+        text={featuredLive.description}
+      />
+
+      <article class="live-ticket live-ticket-featured">
+        <span class="ticket-kicker">{featuredLive.kicker}</span>
+        <h3>{featuredLive.title}</h3>
+        <p>{featuredLive.description}</p>
+        <div class="tag-row">
+          {featuredLive.tags.map((tag) => <span>{tag}</span>)}
+        </div>
+        {featuredLive.youtubeUrl ? (
+          <a class="button button-primary" href={featuredLive.youtubeUrl} target="_blank" rel="noreferrer">Abrir no YouTube</a>
+        ) : (
+          <p class="availability-note">O link oficial entra aqui quando estiver cadastrado.</p>
+        )}
+      </article>
+    </div>
+  </section>
+
+  <section class="section-pad">
+    <div class="container empty-panel">
+      <strong>O arquivo histórico está sendo organizado.</strong>
+      <p>Não vamos preencher a página com títulos aproximados ou links incertos. As rodadas anteriores entram conforme o catálogo oficial for cadastrado.</p>
     </div>
   </section>
 </BaseLayout>
