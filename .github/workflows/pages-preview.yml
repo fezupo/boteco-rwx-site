@@ -3,8 +3,6 @@ name: pages-preview
 on:
   push:
     branches: [main]
-    paths:
-      - '.github/workflows/pages-preview.yml'
   workflow_dispatch:
 
 permissions:
