@@ -1,7 +1,8 @@
 import { readdir, stat } from 'node:fs/promises';
 import { extname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const ROOT = new URL('../dist/', import.meta.url);
+const ROOT = fileURLToPath(new URL('../dist/', import.meta.url));
 const LIMITS = {
   js: 120 * 1024,
   css: 220 * 1024,
