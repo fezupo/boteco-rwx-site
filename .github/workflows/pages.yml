@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - dev/vertical-slice-v1
+  pull_request:
+    branches: [main]
+    types: [synchronize]
   workflow_dispatch:
 
 permissions:
