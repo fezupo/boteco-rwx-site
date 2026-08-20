@@ -1,0 +1,26 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { featuredLive } from '../data/lives';
+---
+
+<BaseLayout title="Agenda" description="Próximas rodadas do Boteco RWX.">
+  <section class="page-hero section-pad">
+    <div class="container">
+      <span class="eyebrow">QUANDO A MESA ABRE</span>
+      <h1>Agenda</h1>
+      <p>Só entra aqui o que estiver realmente combinado. Sem calendário de faz-de-conta.</p>
+    </div>
+  </section>
+
+  <section class="section-pad section-dark">
+    <div class="container schedule-card">
+      <div class="schedule-number">05</div>
+      <div>
+        <span class="ticket-kicker">PRÓXIMA RODADA</span>
+        <h2>{featuredLive.title}</h2>
+        <p>{featuredLive.kicker}</p>
+        <small>Data e link serão exibidos quando estiverem oficialmente cadastrados.</small>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

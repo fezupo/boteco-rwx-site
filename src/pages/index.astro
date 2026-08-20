@@ -1,0 +1,74 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/Hero.astro';
+import SectionHeading from '../components/SectionHeading.astro';
+import TopicGrid from '../components/TopicGrid.astro';
+import CrewGrid from '../components/CrewGrid.astro';
+import { featuredLive } from '../data/lives';
+---
+
+<BaseLayout>
+  <Hero />
+
+  <section id="rodada" class="section-pad section-dark">
+    <div class="container split-feature">
+      <SectionHeading
+        eyebrow="PRÓXIMA RODADA"
+        title={`LIVE ${String(featuredLive.number).padStart(2, '0')}`}
+        text="O tema muda. A mesa continua sendo a mesma: jogar, conversar e deixar o chat entrar na briga."
+      />
+      <article class="live-ticket">
+        <span class="ticket-kicker">{featuredLive.kicker}</span>
+        <h3>{featuredLive.title}</h3>
+        <p>{featuredLive.description}</p>
+        <div class="tag-row">
+          {featuredLive.tags.map((tag) => <span>{tag}</span>)}
+        </div>
+        <a class="text-link" href="/agenda">Abrir agenda →</a>
+      </article>
+    </div>
+  </section>
+
+  <section class="section-pad">
+    <div class="container">
+      <SectionHeading
+        eyebrow="ESCOLHA A PRATELEIRA"
+        title="O assunto muda. O espírito não."
+        text="Não queremos parecer um portal genérico de cultura nerd. Cada tema entra na mesa do nosso jeito."
+      />
+      <TopicGrid />
+    </div>
+  </section>
+
+  <section class="section-pad section-bar">
+    <div class="container bar-callout">
+      <span class="pixel-heart" aria-hidden="true">♥ ♥ ♡</span>
+      <div>
+        <span class="eyebrow">SEM CONTEÚDO INDUSTRIAL</span>
+        <h2>A live acaba. A conversa continua.</h2>
+        <p>Lives, cortes e pequenos contextos vão ganhando espaço conforme fizerem sentido. Sem fábrica de postagem.</p>
+      </div>
+      <a class="button button-ghost" href="/cortes">Ver a área de cortes</a>
+    </div>
+  </section>
+
+  <section class="section-pad">
+    <div class="container">
+      <SectionHeading
+        eyebrow="A MESA"
+        title="Três vozes. Uma rodada."
+        text="O site organiza a casa, mas o Boteco existe por causa da química da bancada e de quem chega no chat."
+      />
+      <CrewGrid />
+    </div>
+  </section>
+
+  <section class="section-pad final-call">
+    <div class="container final-call-inner">
+      <span class="eyebrow">ATÉ A PRÓXIMA RODADA</span>
+      <h2>O Boteco está só começando.</h2>
+      <p>Quando a próxima mesa abrir, você já sabe onde sentar.</p>
+      <a class="button button-primary" href="/agenda">Ver o que vem aí</a>
+    </div>
+  </section>
+</BaseLayout>

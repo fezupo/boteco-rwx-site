@@ -1,0 +1,26 @@
+---
+import Brand from './Brand.astro';
+import { site } from '../config/site';
+const currentPath = Astro.url.pathname;
+---
+
+<header class="site-header">
+  <div class="container header-inner">
+    <Brand />
+
+    <nav class="desktop-nav" aria-label="Navegação principal">
+      {site.nav.map((item) => (
+        <a class:list={[{ active: currentPath === item.href }]} href={item.href}>{item.label}</a>
+      ))}
+    </nav>
+
+    <details class="mobile-menu">
+      <summary aria-label="Abrir menu">MENU</summary>
+      <nav aria-label="Navegação móvel">
+        {site.nav.map((item) => (
+          <a class:list={[{ active: currentPath === item.href }]} href={item.href}>{item.label}</a>
+        ))}
+      </nav>
+    </details>
+  </div>
+</header>
