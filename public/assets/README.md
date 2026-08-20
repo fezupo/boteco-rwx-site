@@ -1,21 +1,34 @@
-# Assets públicos
+# Assets públicos do Boteco RWX
 
-## Fundo oficial do Boteco RWX
+## Hero oficial
 
-Arquivo esperado pelo primeiro vertical slice:
+O primeiro vertical slice espera o arquivo:
 
 `public/assets/boteco-rwx-background.webp`
 
-Fonte visual: plano de fundo oficial usado nas transmissões do Boteco RWX, fornecido por Felipe em 20/08/2026.
+Origem: plano de fundo oficial usado nas transmissões do Boteco RWX.
 
-### Derivação recomendada para produção
+Derivado recomendado para a V1:
 
 - fonte: 1672x941 PNG (~3 MB)
-- derivado WebP: 1440x810
-- qualidade WebP: 76
+- formato servido: WebP
+- dimensões: 1440x810
+- qualidade usada no derivado: 76
 - tamanho observado: ~151 KB
-- não fazer upscale
+- uso: Hero da Home
 
-O original pesado não deve ser servido diretamente na Home. A versão WebP é usada como ambiente do Hero e recebe overlays em CSS para preservar leitura e contraste.
+O PNG original não deve ser servido diretamente pela Home porque custa aproximadamente 3 MB e não entrega benefício proporcional nesse uso.
 
-Em telas estreitas a mesma arte é reposicionada com `background-position`; um crop mobile dedicado só deve ser criado se teste real mostrar necessidade.
+A versão WebP recebe overlays em CSS para preservar leitura e contraste. Em telas estreitas a mesma arte é reposicionada com `background-position`; um crop mobile dedicado só deve ser criado se teste real mostrar necessidade.
+
+## Regra de asset
+
+- otimizar antes de publicar;
+- não enviar resolução muito maior do que a área real de exibição;
+- manter contraste suficiente para texto e navegação;
+- evitar duplicar o mesmo fundo em todas as seções;
+- benchmark visual em desktop e celular manda mais do que dogma de formato.
+
+## Pendência operacional
+
+O conector GitHub usado durante o desenvolvimento atual escreve arquivos de texto, mas não envia o binário WebP. O arquivo otimizado já foi produzido e precisa ser colocado neste diretório antes do preview visual definitivo.
