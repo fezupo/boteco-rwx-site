@@ -30,11 +30,6 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Configure and enable GitHub Pages
-        uses: actions/configure-pages@v6
-        with:
-          enablement: true
-
       - name: Type and Astro check
         run: npm run check
 
