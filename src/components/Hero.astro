@@ -1,5 +1,10 @@
 ---
 import { featuredLive } from '../data/lives';
+
+const isLive = featuredLive.status === 'live';
+const liveLabel = isLive ? 'A MESA ESTÁ ABERTA' : 'PRÓXIMA RODADA';
+const primaryHref = isLive && featuredLive.youtubeUrl ? featuredLive.youtubeUrl : '/agenda';
+const primaryLabel = isLive && featuredLive.youtubeUrl ? 'Sentar à mesa agora' : 'Ver próxima rodada';
 ---
 
 <section class="hero section-pad">
@@ -9,14 +14,19 @@ import { featuredLive } from '../data/lives';
       <h1>Conversa nerd com <em>permissão total.</em></h1>
       <p class="hero-lead">Games, anime, tokusatsu, música e resenha com personalidade, sem transformar tudo em palestra.</p>
 
-      <div class="hero-live-strip" aria-label={`Próxima rodada: Live ${featuredLive.number}, ${featuredLive.title}`}>
-        <span>PRÓXIMA RODADA</span>
+      <div class:list={['hero-live-strip', { 'is-live': isLive }]} aria-label={`${liveLabel}: Live ${featuredLive.number}, ${featuredLive.title}`}>
+        <span>{liveLabel}</span>
         <strong>LIVE {String(featuredLive.number).padStart(2, '0')} · {featuredLive.title}</strong>
         <small>{featuredLive.kicker}</small>
       </div>
 
       <div class="hero-actions">
-        <a class="button button-primary" href="/agenda">Ver próxima rodada</a>
+        <a
+          class="button button-primary"
+          href={primaryHref}
+          target={isLive && featuredLive.youtubeUrl ? '_blank' : undefined}
+          rel={isLive && featuredLive.youtubeUrl ? 'noreferrer' : undefined}
+        >{primaryLabel}</a>
         <a class="button button-ghost" href="/sobre">Conhecer o Boteco</a>
       </div>
       <p class="hero-slogan">Aqui o freguês não só assiste. <strong>Ele senta à mesa.</strong></p>
