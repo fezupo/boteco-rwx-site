@@ -1,9 +1,9 @@
 name: deploy-pages-preview
 
 on:
-  pull_request:
-    branches: [main]
-    types: [opened, reopened, synchronize]
+  push:
+    branches:
+      - dev/vertical-slice-v1
   workflow_dispatch:
 
 permissions:
@@ -30,8 +30,10 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Configure GitHub Pages
+      - name: Configure and enable GitHub Pages
         uses: actions/configure-pages@v6
+        with:
+          enablement: true
 
       - name: Type and Astro check
         run: npm run check
