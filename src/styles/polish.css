@@ -1,0 +1,59 @@
+@layer base, components, utilities;
+
+@layer base {
+  ::selection {
+    background: rgba(255, 180, 36, .28);
+    color: var(--text);
+  }
+
+  [id] {
+    scroll-margin-top: 88px;
+  }
+}
+
+@layer components {
+  main > section:not(.hero):not(.page-hero) {
+    content-visibility: auto;
+    contain-intrinsic-size: 700px;
+  }
+
+  .error-page {
+    min-height: calc(100svh - 72px);
+    display: grid;
+    align-items: center;
+  }
+
+  .error-page h1 {
+    max-width: 9ch;
+  }
+
+  .site-header {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+
+  .mobile-menu[open] summary {
+    color: var(--amber);
+    border-color: rgba(255,180,36,.35);
+  }
+}
+
+@layer utilities {
+  @media (hover: none) {
+    .button:hover,
+    .topic-card:hover {
+      transform: none;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .desktop-nav a,
+    .mobile-menu a,
+    .button {
+      min-height: 44px;
+    }
+
+    body::before {
+      opacity: .03;
+    }
+  }
+}
