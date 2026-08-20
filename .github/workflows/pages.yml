@@ -1,9 +1,9 @@
 name: deploy-pages-preview
 
 on:
-  pull_request:
-    branches: [main]
-    types: [opened, reopened, synchronize]
+  push:
+    branches:
+      - dev/vertical-slice-v1
   workflow_dispatch:
 
 permissions:
