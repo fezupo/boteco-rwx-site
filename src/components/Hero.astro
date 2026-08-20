@@ -1,13 +1,15 @@
 ---
 import { featuredLive } from '../data/lives';
+import { withBase } from '../utils/paths';
 
 const isLive = featuredLive.status === 'live';
 const liveLabel = isLive ? 'A MESA ESTÁ ABERTA' : 'PRÓXIMA RODADA';
-const primaryHref = isLive && featuredLive.youtubeUrl ? featuredLive.youtubeUrl : '/agenda';
+const primaryHref = isLive && featuredLive.youtubeUrl ? featuredLive.youtubeUrl : withBase('/agenda');
 const primaryLabel = isLive && featuredLive.youtubeUrl ? 'Sentar à mesa agora' : 'Ver próxima rodada';
+const heroBackground = `--hero-background: url(${withBase('/assets/boteco-rwx-background.webp')})`;
 ---
 
-<section class="hero section-pad">
+<section class="hero section-pad" style={heroBackground}>
   <div class="container hero-grid">
     <div class="hero-copy reveal">
       <span class="eyebrow">ENTRE, A CASA É SUA</span>
@@ -27,7 +29,7 @@ const primaryLabel = isLive && featuredLive.youtubeUrl ? 'Sentar à mesa agora' 
           target={isLive && featuredLive.youtubeUrl ? '_blank' : undefined}
           rel={isLive && featuredLive.youtubeUrl ? 'noreferrer' : undefined}
         >{primaryLabel}</a>
-        <a class="button button-ghost" href="/sobre">Conhecer o Boteco</a>
+        <a class="button button-ghost" href={withBase('/sobre')}>Conhecer o Boteco</a>
       </div>
       <p class="hero-slogan">Aqui o freguês não só assiste. <strong>Ele senta à mesa.</strong></p>
     </div>
