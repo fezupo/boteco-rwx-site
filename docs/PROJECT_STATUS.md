@@ -29,13 +29,15 @@
 - Favicon SVG leve adicionado.
 - `robots.txt` mínimo adicionado.
 - `prefers-reduced-motion` e `prefers-reduced-transparency` respeitados.
-- View Transitions progressivas adicionadas sem framework cliente.
+- View Transitions progressivas adicionadas sem framework cliente obrigatório.
 - Seções fora da primeira dobra usam `content-visibility` para reduzir trabalho inicial do navegador.
 - Guia de manutenção de conteúdo criado em `docs/CONTENT_GUIDE.md`.
 - Performance budget automatizado para JavaScript e CSS.
 - CI gera artefato estático de build quando executada.
-- CI configurada para não rodar em cada push de DEV, evitando flood de notificações.
-- Uma execução anterior da CI do PR concluiu com sucesso antes do pacote atual de refinamentos.
+- Runtime da CI alinhado para Node 22.19+.
+- CI configurada para não rodar em cada push normal de DEV, evitando flood de notificações.
+- Checkpoint atual validado com sucesso: Astro/TypeScript, build de produção, performance budget e artefato estático.
+- Protótipo navegável offline montado a partir do build verde e do fundo oficial otimizado.
 
 ### Decisões congeladas por enquanto
 
@@ -64,38 +66,53 @@ Objetivo: a pessoa abrir o site em celular ou desktop e entender rapidamente:
 
 O site continua funcional mesmo sem JavaScript obrigatório.
 
-## Pendência de asset
+## Protótipo navegável V1
 
-O código espera o arquivo:
+Foi montado um pacote offline derivado do artefato estático validado pela CI. Ele contém:
+
+- Home;
+- Lives;
+- Agenda;
+- Cortes;
+- A Mesa;
+- Sobre;
+- 404;
+- CSS compilado;
+- favicon;
+- fundo oficial WebP de 1440x810 (~151 KB);
+- links internos convertidos para navegação local sem servidor.
+
+O protótipo pode ser aberto diretamente pelo `index.html` depois de descompactado. Ele não representa deploy de produção e existe para revisão visual e de experiência.
+
+## Asset oficial no repositório
+
+O código da branch espera o arquivo:
 
 `public/assets/boteco-rwx-background.webp`
 
-O derivado WebP já foi preparado fora do repositório. O conector GitHub usado no desenvolvimento atual não envia binários, portanto esse arquivo precisa ser adicionado ao caminho acima antes do preview visual definitivo.
+O WebP já existe e está incluído no protótipo offline, porém o binário ainda não está versionado na branch. Enquanto isso, o build do repositório permanece funcional com fallback visual e resolve o asset em runtime quando ele estiver presente.
 
-Sem o arquivo, a Home ainda funciona usando as camadas de fallback, porém sem o cenário oficial das transmissões.
+## Validação atual
 
-## Validação
+Última validação completa do checkpoint atual: **verde**.
 
-A CI inicial do PR já concluiu com sucesso em um checkpoint anterior.
+Incluiu:
 
-Depois dos refinamentos atuais, a CI não é disparada em todo commit. A próxima validação completa deve ser feita conscientemente quando o slice estiver pronto para revisão, preservando o fluxo sem flood de e-mail.
-
-A validação inclui:
-
-- Astro/TypeScript check;
-- build de produção;
-- performance budget;
-- geração de artefato estático `dist/`.
+- Astro/TypeScript check: sucesso, sem erros;
+- build de produção: sucesso;
+- 7 rotas estáticas geradas;
+- performance budget: sucesso;
+- artefato estático gerado;
+- Node 22.19 alinhado com o ecossistema atual.
 
 ## Próximos passos
 
-1. Adicionar `public/assets/boteco-rwx-background.webp` ao PR #1.
-2. Executar a validação completa do checkpoint atual.
-3. Abrir o build real em desktop e celular.
-4. Ajustar texto, densidade, crop e hierarquia pela sensação em tela.
-5. Cadastrar a URL oficial do YouTube quando definida para o site.
-6. Decidir hospedagem e domínio somente depois do slice aprovado.
-7. Inserir Will e KV para feedback quando Felipe considerar o protótipo maduro o suficiente.
+1. Revisar o protótipo V1 visualmente em desktop e celular.
+2. Ajustar texto, densidade, crop e hierarquia pela sensação real em tela.
+3. Versionar `public/assets/boteco-rwx-background.webp` na branch antes do deploy oficial.
+4. Cadastrar a URL oficial do YouTube quando definida para o site.
+5. Decidir hospedagem e domínio somente depois do slice aprovado.
+6. Inserir Will e KV para feedback quando Felipe considerar o protótipo maduro o suficiente.
 
 ## Regra de merge
 
