@@ -48,6 +48,15 @@
     border-color: rgba(255,180,36,.35);
   }
 
+  .live-ticket-featured {
+    max-width: 900px;
+  }
+
+  .availability-note {
+    margin-top: 1rem;
+    font-size: .9rem;
+  }
+
   @keyframes boteco-out {
     to { opacity: 0; transform: translateY(-3px); }
   }
