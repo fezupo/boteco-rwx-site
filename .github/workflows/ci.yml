@@ -3,7 +3,7 @@ name: site-ci
 on:
   pull_request:
     branches: [main]
-    types: [opened, reopened, ready_for_review]
+    types: [opened, reopened, ready_for_review, synchronize]
   workflow_dispatch:
 
 permissions:
@@ -19,7 +19,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22.19.0
 
       - name: Install dependencies
         run: npm install
