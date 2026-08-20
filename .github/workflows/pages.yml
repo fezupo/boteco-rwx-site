@@ -8,6 +8,7 @@ on:
 
 permissions:
   contents: read
+  actions: write
 
 concurrency:
   group: boteco-rwx-site-ci
@@ -38,3 +39,9 @@ jobs:
 
       - name: Carmack performance budget
         run: npm run budget
+
+      - name: Publish green DEV prototype through main workflow
+        if: github.event_name == 'push'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run pages-preview.yml --ref main
