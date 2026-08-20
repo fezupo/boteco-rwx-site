@@ -1,0 +1,67 @@
+name: pages-preview
+
+on:
+  workflow_run:
+    workflows: ["site-ci"]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: boteco-rwx-pages-preview
+  cancel-in-progress: true
+
+jobs:
+  build:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.head_branch == 'dev/vertical-slice-v1')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout DEV prototype
+        uses: actions/checkout@v4
+        with:
+          ref: dev/vertical-slice-v1
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.19.0
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v6
+
+      - name: Type and Astro check
+        run: npm run check
+
+      - name: Production build for GitHub Pages
+        run: npm run build
+        env:
+          GITHUB_PAGES: 'true'
+
+      - name: Carmack performance budget
+        run: npm run budget
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist/
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy DEV prototype to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
