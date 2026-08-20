@@ -10,7 +10,8 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "check": "astro check"
+    "check": "astro check",
+    "budget": "node scripts/check-budget.mjs"
   },
   "dependencies": {
     "astro": "^5.0.0"
