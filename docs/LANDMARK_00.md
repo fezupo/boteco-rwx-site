@@ -26,6 +26,7 @@ A estética pode ter personalidade, movimento, neon, CRT e microinterações des
 - Mobile é ambiente de primeira classe.
 - Elementos secundários podem falhar sem quebrar a navegação principal.
 - Carregar recurso somente quando necessário.
+- Remover código morto quando uma direção de produto substitui a anterior.
 - Decisões técnicas podem mudar quando benchmarks ou experiência real mostrarem caminho melhor.
 
 ## 4. Stack inicial
@@ -47,9 +48,12 @@ Frameworks adicionais, CMS, banco, bibliotecas de animação ou backend entram s
 - Cortes
 - A Mesa
 - Sobre
+- 404 coerente com a identidade
 - SEO básico
 - Responsividade desktop/tablet/mobile
 - Estrutura para links externos configuráveis
+- Performance budget automatizado
+- Build estático exportável
 
 ## 6. Links externos
 
@@ -60,13 +64,32 @@ Outras redes ficam preparadas em configuração, porém **não são renderizadas
 ## 7. Direção visual
 
 - boteco digital
+- cenário oficial das transmissões como ambiente do Hero
 - arcade / neon / CRT como linguagem, não como ruído
 - madeira escura e luz quente como contraponto
 - vermelho, âmbar e azul como acentos
 - alta legibilidade
 - personalidade forte sem transformar a navegação em thumbnail
+- seções internas mais limpas que o Hero para preservar leitura
 
-## 8. Não escopo inicial
+## 8. Performance e magia
+
+Magia permitida na V1:
+
+- glow e contraste em CSS;
+- scanline leve;
+- microinterações;
+- View Transitions progressivas sem framework cliente;
+- estados visuais da live gerados no build.
+
+Limites iniciais de build:
+
+- JavaScript cliente total: 120 KB no máximo;
+- CSS total: 220 KB no máximo.
+
+Os limites são guardrails iniciais, não dogma. Mudam somente quando necessidade real e benchmark justificarem.
+
+## 9. Não escopo inicial
 
 - login
 - fórum
@@ -76,12 +99,13 @@ Outras redes ficam preparadas em configuração, porém **não são renderizadas
 - banco de dados sem necessidade
 - SPA por padrão
 - animação pesada sem benefício mensurável
+- redes sociais inexistentes na interface
 
-## 9. Governança
+## 10. Governança
 
 A baseline inicial nasce com Felipe + Ayame em modo de laboratório. Will e KV entram no processo quando houver uma experiência concreta para avaliar. Identidade coletiva, representação dos integrantes e evolução editorial devem receber feedback da Mesa antes de produção pública.
 
-## 10. Critério do primeiro vertical slice
+## 11. Critério do primeiro vertical slice
 
 Abrir o site em celular ou desktop e, em poucos segundos, entender:
 
@@ -91,3 +115,7 @@ Abrir o site em celular ou desktop e, em poucos segundos, entender:
 4. onde continuar explorando.
 
 O primeiro slice deve funcionar sem JavaScript obrigatório.
+
+## 12. Regra de merge
+
+A `main` é linha estável. O primeiro vertical slice permanece em PR Draft até revisão visual e autorização explícita para avançar.
