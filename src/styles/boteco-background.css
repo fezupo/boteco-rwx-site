@@ -1,0 +1,102 @@
+@layer components, utilities;
+
+@layer components {
+  .hero {
+    background:
+      linear-gradient(90deg,
+        rgba(5, 4, 5, .06) 0%,
+        rgba(5, 4, 5, .12) 32%,
+        rgba(5, 4, 5, .58) 48%,
+        rgba(5, 4, 5, .72) 70%,
+        rgba(5, 4, 5, .42) 100%),
+      url('/assets/boteco-rwx-background.webp') center center / cover no-repeat;
+    border-bottom: 1px solid rgba(255,255,255,.10);
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: -1;
+    background: linear-gradient(to bottom,
+      rgba(0,0,0,.08),
+      transparent 28%,
+      rgba(0,0,0,.18) 72%,
+      rgba(8,7,9,.78));
+  }
+
+  .hero .hero-glow,
+  .hero .hero-machine {
+    display: none;
+  }
+
+  .hero .hero-grid {
+    grid-template-columns: minmax(0, .84fr) minmax(380px, .96fr);
+    min-height: min(760px, calc(100svh - 72px));
+  }
+
+  .hero .hero-copy {
+    grid-column: 2;
+    max-width: 610px;
+    padding: clamp(1.4rem, 3vw, 2.2rem);
+    border: 1px solid rgba(255,255,255,.15);
+    border-radius: var(--radius);
+    background: rgba(7,6,8,.74);
+    box-shadow: 0 28px 80px rgba(0,0,0,.46), inset 0 1px rgba(255,255,255,.07);
+  }
+
+  .hero .hero-copy h1 {
+    max-width: 10ch;
+    font-size: clamp(2.8rem, 5.4vw, 5.8rem);
+  }
+
+  .hero .button-ghost {
+    background: rgba(10,9,11,.78);
+  }
+
+  .hero .scroll-cue {
+    padding: .35rem .7rem;
+    border-radius: 999px;
+    background: rgba(0,0,0,.62);
+    color: #d8d0c9;
+  }
+}
+
+@layer utilities {
+  @media (max-width: 900px) {
+    .hero {
+      background-position: 31% center;
+    }
+
+    .hero .hero-grid {
+      display: block;
+      min-height: min(820px, calc(100svh - 72px));
+    }
+
+    .hero .hero-copy {
+      width: min(100%, 620px);
+      margin: clamp(13rem, 37svh, 20rem) auto 0;
+      background: rgba(7,6,8,.82);
+    }
+  }
+
+  @media (max-width: 600px) {
+    .hero {
+      background-position: 28% center;
+    }
+
+    .hero .hero-grid {
+      min-height: 760px;
+    }
+
+    .hero .hero-copy {
+      margin-top: 14rem;
+      padding: 1.25rem;
+    }
+
+    .hero .hero-copy h1 {
+      font-size: clamp(2.35rem, 12vw, 3.7rem);
+    }
+  }
+}
