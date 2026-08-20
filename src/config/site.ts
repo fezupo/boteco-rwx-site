@@ -3,13 +3,6 @@ export type ExternalLink = {
   url: string | null;
 };
 
-const externalLinks: Record<string, ExternalLink> = {
-  youtube: { label: 'YouTube', url: null },
-  instagram: { label: 'Instagram', url: null },
-  tiktok: { label: 'TikTok', url: null },
-  x: { label: 'X', url: null },
-};
-
 export const site = {
   name: 'Boteco RWX',
   description: 'Games, anime, tokusatsu, música e conversa sem frescura.',
@@ -22,9 +15,14 @@ export const site = {
     { label: 'A Mesa', href: '/mesa' },
     { label: 'Sobre', href: '/sobre' },
   ],
-  external: externalLinks,
+  external: {
+    youtube: { label: 'YouTube', url: null },
+    instagram: { label: 'Instagram', url: null },
+    tiktok: { label: 'TikTok', url: null },
+    x: { label: 'X', url: null },
+  } satisfies Record<string, ExternalLink>,
 } as const;
 
 export const activeExternalLinks = Object.values(site.external).filter(
-  (link): link is { label: string; url: string } => Boolean(link.url),
+  (link): link is ExternalLink & { url: string } => typeof link.url === 'string' && link.url.length > 0,
 );
