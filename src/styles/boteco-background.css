@@ -56,11 +56,20 @@
     background: rgba(0,0,0,.34);
   }
 
+  .hero-live-strip.is-live {
+    border-left-color: var(--red);
+    box-shadow: inset 14px 0 30px rgba(255,60,31,.08);
+  }
+
   .hero-live-strip span {
     color: var(--amber);
     font-size: .67rem;
     font-weight: 900;
     letter-spacing: .14em;
+  }
+
+  .hero-live-strip.is-live span {
+    color: #ff7965;
   }
 
   .hero-live-strip strong {
