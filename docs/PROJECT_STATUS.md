@@ -16,15 +16,16 @@
 - Home implementada.
 - Páginas Lives, Agenda, Cortes, A Mesa, Sobre e 404 implementadas.
 - Navegação desktop e mobile sem JavaScript obrigatório.
-- Navegação com `aria-current` e foco de teclado.
+- Navegação com `aria-current`, foco de teclado e suporte ao subpath do GitHub Pages.
 - LIVE 05 cadastrada como próxima rodada.
 - Hero reage ao estado da live sem JavaScript cliente.
 - Links externos centralizados em configuração.
 - Redes sem URL não aparecem publicamente.
 - Visual arcade / boteco / neon / CRT.
 - Plano de fundo oficial das transmissões adotado como ambiente visual do Hero.
+- Asset oficial WebP versionado de verdade no Git em `public/assets/boteco-rwx-background.webp`.
+- Derivado leve de protótipo em 1024 px usado no repositório para reduzir transferência.
 - CSS responsivo preparado para o asset oficial com overlay de contraste e reposicionamento mobile.
-- Derivação WebP definida em 1440x810 (~151 KB), evitando servir o PNG original de ~3 MB.
 - Metadados básicos de SEO e compartilhamento adicionados.
 - Favicon SVG leve adicionado.
 - `robots.txt` mínimo adicionado.
@@ -35,8 +36,10 @@
 - Performance budget automatizado para JavaScript e CSS.
 - CI gera artefato estático de build quando executada.
 - Runtime da CI alinhado para Node 22.19+.
-- CI configurada para não rodar em cada push normal de DEV, evitando flood de notificações.
-- Checkpoint atual validado com sucesso: Astro/TypeScript, build de produção, performance budget e artefato estático.
+- Configuração Astro preparada para GitHub Pages em `/boteco-rwx-site/`.
+- Helper `withBase()` aplicado a navegação, Hero, assets e links internos relevantes.
+- Workflow `.github/workflows/pages.yml` criado para build, budget, artifact e deploy no GitHub Pages.
+- Checkpoint anterior validado com sucesso: Astro/TypeScript, build de produção, performance budget e artefato estático.
 - Protótipo navegável offline montado a partir do build verde e do fundo oficial otimizado.
 
 ### Decisões congeladas por enquanto
@@ -66,35 +69,30 @@ Objetivo: a pessoa abrir o site em celular ou desktop e entender rapidamente:
 
 O site continua funcional mesmo sem JavaScript obrigatório.
 
-## Protótipo navegável V1
+## Asset oficial
 
-Foi montado um pacote offline derivado do artefato estático validado pela CI. Ele contém:
-
-- Home;
-- Lives;
-- Agenda;
-- Cortes;
-- A Mesa;
-- Sobre;
-- 404;
-- CSS compilado;
-- favicon;
-- fundo oficial WebP de 1440x810 (~151 KB);
-- links internos convertidos para navegação local sem servidor.
-
-O protótipo pode ser aberto diretamente pelo `index.html` depois de descompactado. Ele não representa deploy de produção e existe para revisão visual e de experiência.
-
-## Asset oficial no repositório
-
-O código da branch espera o arquivo:
+O fundo do Hero está versionado na branch no caminho:
 
 `public/assets/boteco-rwx-background.webp`
 
-O WebP já existe e está incluído no protótipo offline, porém o binário ainda não está versionado na branch. Enquanto isso, o build do repositório permanece funcional com fallback visual e resolve o asset em runtime quando ele estiver presente.
+A inclusão foi feita como blob Git binário real, sem base64 persistido, sem chunk temporário e sem depender do ZIP offline.
 
-## Validação atual
+## GitHub Pages
 
-Última validação completa do checkpoint atual: **verde**.
+O repositório e o código já estão preparados para publicação em:
+
+`https://fezupo.github.io/boteco-rwx-site/`
+
+O workflow de Pages chegou a executar no GitHub Actions, mas foi interrompido no passo `Configure GitHub Pages` porque o recurso Pages ainda não foi habilitado uma vez nas configurações do repositório.
+
+Bloqueio externo atual:
+
+- GitHub Pages precisa ser habilitado em **Settings > Pages > Build and deployment > Source: GitHub Actions**.
+- Depois dessa ativação única, o workflow já versionado pode ser reexecutado sem alteração estrutural do projeto.
+
+## Validação
+
+Último checkpoint completo anterior à tentativa de Pages: **verde**.
 
 Incluiu:
 
@@ -105,14 +103,17 @@ Incluiu:
 - artefato estático gerado;
 - Node 22.19 alinhado com o ecossistema atual.
 
+A execução de Pages mais recente não chegou ao check/build porque o próprio GitHub encerrou antes, durante a configuração de Pages desabilitado. Isso não representa falha do código do site.
+
 ## Próximos passos
 
-1. Revisar o protótipo V1 visualmente em desktop e celular.
-2. Ajustar texto, densidade, crop e hierarquia pela sensação real em tela.
-3. Versionar `public/assets/boteco-rwx-background.webp` na branch antes do deploy oficial.
-4. Cadastrar a URL oficial do YouTube quando definida para o site.
-5. Decidir hospedagem e domínio somente depois do slice aprovado.
-6. Inserir Will e KV para feedback quando Felipe considerar o protótipo maduro o suficiente.
+1. Habilitar GitHub Pages uma única vez usando Source = GitHub Actions.
+2. Reexecutar o workflow `deploy-pages-preview`.
+3. Confirmar build, budget e deploy verdes.
+4. Abrir a URL do protótipo em desktop e celular.
+5. Ajustar texto, densidade, crop e hierarquia pela sensação real em tela.
+6. Cadastrar a URL oficial do YouTube quando definida para o site.
+7. Inserir Will e KV para feedback quando o protótipo estiver maduro o suficiente.
 
 ## Regra de merge
 
