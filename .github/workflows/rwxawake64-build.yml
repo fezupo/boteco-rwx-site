@@ -1,0 +1,47 @@
+name: Build RWXAwake64
+
+on:
+  push:
+    branches:
+      - rwxawake64-build
+    paths:
+      - 'tools/RWXAwake64/**'
+      - '.github/workflows/rwxawake64-build.yml'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Compile RWXAwake64.exe
+        shell: powershell
+        run: |
+          $csc = "$env:WINDIR\Microsoft.NET\Framework64\v4.0.30319\csc.exe"
+          if (!(Test-Path $csc)) {
+            throw "64-bit .NET Framework C# compiler not found at $csc"
+          }
+
+          New-Item -ItemType Directory -Force -Path dist | Out-Null
+
+          & $csc /nologo /target:winexe /platform:x64 /optimize+ `
+            /reference:System.Windows.Forms.dll `
+            /reference:System.Drawing.dll `
+            /out:dist\RWXAwake64.exe `
+            tools\RWXAwake64\RWXAwake64.cs
+
+          if ($LASTEXITCODE -ne 0) {
+            throw "Compilation failed with exit code $LASTEXITCODE"
+          }
+
+          Get-FileHash dist\RWXAwake64.exe -Algorithm SHA256 | Format-List
+
+      - name: Upload executable
+        uses: actions/upload-artifact@v4
+        with:
+          name: RWXAwake64-win64
+          path: dist/RWXAwake64.exe
+          if-no-files-found: error
+          retention-days: 7
