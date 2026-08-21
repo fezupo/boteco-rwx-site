@@ -7,6 +7,12 @@ on:
     paths:
       - 'tools/RWXAwake64/**'
       - '.github/workflows/rwxawake64-build.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'tools/RWXAwake64/**'
+      - '.github/workflows/rwxawake64-build.yml'
   workflow_dispatch:
 
 jobs:
