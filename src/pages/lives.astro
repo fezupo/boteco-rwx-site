@@ -1,0 +1,46 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SectionHeading from '../components/SectionHeading.astro';
+import { featuredLive } from '../data/lives';
+---
+
+<BaseLayout title="Lives" description="Lives e rodadas do Boteco RWX.">
+  <section class="page-hero section-pad">
+    <div class="container">
+      <span class="eyebrow">ARQUIVO DO BOTECO</span>
+      <h1>Lives</h1>
+      <p>Cada rodada ganha seu lugar sem obrigar você a cavar o canal inteiro.</p>
+    </div>
+  </section>
+
+  <section class="section-pad section-dark">
+    <div class="container">
+      <SectionHeading
+        eyebrow="EM DESTAQUE"
+        title={`LIVE ${String(featuredLive.number).padStart(2, '0')}: ${featuredLive.title}`}
+        text={featuredLive.description}
+      />
+
+      <article class="live-ticket live-ticket-featured">
+        <span class="ticket-kicker">{featuredLive.kicker}</span>
+        <h3>{featuredLive.title}</h3>
+        <p>{featuredLive.description}</p>
+        <div class="tag-row">
+          {featuredLive.tags.map((tag) => <span>{tag}</span>)}
+        </div>
+        {featuredLive.youtubeUrl ? (
+          <a class="button button-primary" href={featuredLive.youtubeUrl} target="_blank" rel="noreferrer">Abrir no YouTube</a>
+        ) : (
+          <p class="availability-note">O link oficial entra aqui quando estiver cadastrado.</p>
+        )}
+      </article>
+    </div>
+  </section>
+
+  <section class="section-pad">
+    <div class="container empty-panel">
+      <strong>O arquivo histórico está sendo organizado.</strong>
+      <p>Não vamos preencher a página com títulos aproximados ou links incertos. As rodadas anteriores entram conforme o catálogo oficial for cadastrado.</p>
+    </div>
+  </section>
+</BaseLayout>

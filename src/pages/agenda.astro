@@ -1,0 +1,37 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { featuredLive } from '../data/lives';
+
+const isLive = featuredLive.status === 'live';
+---
+
+<BaseLayout title="Agenda" description="Próximas rodadas do Boteco RWX.">
+  <section class="page-hero section-pad">
+    <div class="container">
+      <span class="eyebrow">QUANDO A MESA ABRE</span>
+      <h1>Agenda</h1>
+      <p>Só entra aqui o que estiver realmente combinado. Sem calendário de faz-de-conta.</p>
+    </div>
+  </section>
+
+  <section class="section-pad section-dark">
+    <div class="container schedule-card">
+      <div class="schedule-number">{String(featuredLive.number).padStart(2, '0')}</div>
+      <div>
+        <span class="ticket-kicker">{isLive ? 'A MESA ESTÁ ABERTA' : 'PRÓXIMA RODADA'}</span>
+        <h2>{featuredLive.title}</h2>
+        <p>{featuredLive.kicker}</p>
+        <div class="tag-row">
+          {featuredLive.tags.map((tag) => <span>{tag}</span>)}
+        </div>
+        {featuredLive.youtubeUrl ? (
+          <a class="button button-primary" href={featuredLive.youtubeUrl} target="_blank" rel="noreferrer">
+            {isLive ? 'Sentar à mesa agora' : 'Abrir no YouTube'}
+          </a>
+        ) : (
+          <small>Data e link aparecem aqui somente quando estiverem oficialmente cadastrados.</small>
+        )}
+      </div>
+    </div>
+  </section>
+</BaseLayout>

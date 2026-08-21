@@ -1,0 +1,42 @@
+---
+import Brand from './Brand.astro';
+import { site } from '../config/site';
+import { withBase } from '../utils/paths';
+
+const currentPath = Astro.url.pathname.replace(/\/$/, '') || '/';
+const isActive = (href: string) => {
+  const resolved = withBase(href).replace(/\/$/, '') || '/';
+  return href === '/'
+    ? currentPath === resolved
+    : currentPath === resolved || currentPath.startsWith(`${resolved}/`);
+};
+---
+
+<header class="site-header">
+  <div class="container header-inner">
+    <Brand />
+
+    <nav class="desktop-nav" aria-label="Navegação principal">
+      {site.nav.map((item) => (
+        <a
+          class:list={[{ active: isActive(item.href) }]}
+          aria-current={isActive(item.href) ? 'page' : undefined}
+          href={withBase(item.href)}
+        >{item.label}</a>
+      ))}
+    </nav>
+
+    <details class="mobile-menu">
+      <summary aria-label="Abrir menu de navegação">MENU</summary>
+      <nav aria-label="Navegação móvel">
+        {site.nav.map((item) => (
+          <a
+            class:list={[{ active: isActive(item.href) }]}
+            aria-current={isActive(item.href) ? 'page' : undefined}
+            href={withBase(item.href)}
+          >{item.label}</a>
+        ))}
+      </nav>
+    </details>
+  </div>
+</header>
