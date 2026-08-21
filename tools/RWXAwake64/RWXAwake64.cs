@@ -20,13 +20,14 @@ namespace RWXAwake64
         internal struct INPUT
         {
             public uint type;
-            public MOUSEKEYBDHARDWAREINPUT data;
+            public INPUTUNION data;
         }
 
         [StructLayout(LayoutKind.Explicit)]
-        internal struct MOUSEKEYBDHARDWAREINPUT
+        internal struct INPUTUNION
         {
             [FieldOffset(0)] public MOUSEINPUT mi;
+            [FieldOffset(0)] public KEYBDINPUT ki;
         }
 
         [StructLayout(LayoutKind.Sequential)]
@@ -40,8 +41,21 @@ namespace RWXAwake64
             public UIntPtr dwExtraInfo;
         }
 
+        [StructLayout(LayoutKind.Sequential)]
+        internal struct KEYBDINPUT
+        {
+            public ushort wVk;
+            public ushort wScan;
+            public uint dwFlags;
+            public uint time;
+            public UIntPtr dwExtraInfo;
+        }
+
         internal const uint INPUT_MOUSE = 0;
+        internal const uint INPUT_KEYBOARD = 1;
         internal const uint MOUSEEVENTF_MOVE = 0x0001;
+        internal const uint KEYEVENTF_KEYUP = 0x0002;
+        internal const ushort VK_F15 = 0x7E;
 
         [DllImport("kernel32.dll", SetLastError = true)]
         internal static extern EXECUTION_STATE SetThreadExecutionState(EXECUTION_STATE esFlags);
@@ -50,29 +64,46 @@ namespace RWXAwake64
         internal static extern uint SendInput(uint nInputs, INPUT[] pInputs, int cbSize);
     }
 
+    internal enum PulseMode
+    {
+        F15,
+        Mouse
+    }
+
     internal sealed class TrayContext : ApplicationContext
     {
         private readonly NotifyIcon tray;
         private readonly ToolStripMenuItem statusItem;
+        private readonly ToolStripMenuItem f15ModeItem;
+        private readonly ToolStripMenuItem mouseModeItem;
         private readonly System.Windows.Forms.Timer uiTimer;
         private readonly System.Windows.Forms.Timer activityTimer;
 
         private bool active;
         private DateTime? endTime;
         private DateTime? lastActivityPulse;
+        private PulseMode pulseMode = PulseMode.F15;
+        private bool lastPulseUsedFallback;
 
-        // Abaixo de timeouts comuns de lock (5, 10, 15 min) e sem gerar carga perceptivel.
-        private const int ActivityPulseIntervalMs = 45000;
+        private const int ActivityPulseIntervalMs = 59000;
 
         internal TrayContext()
         {
-            statusItem = new ToolStripMenuItem("Status: Desativado");
-            statusItem.Enabled = false;
+            statusItem = new ToolStripMenuItem("Status: Desativado") { Enabled = false };
 
             var enableForever = new ToolStripMenuItem("Ativar indefinidamente", null, delegate { Enable(null); });
             var enable30 = new ToolStripMenuItem("30 minutos", null, delegate { Enable(TimeSpan.FromMinutes(30)); });
             var enable60 = new ToolStripMenuItem("1 hora", null, delegate { Enable(TimeSpan.FromHours(1)); });
             var enable120 = new ToolStripMenuItem("2 horas", null, delegate { Enable(TimeSpan.FromHours(2)); });
+
+            f15ModeItem = new ToolStripMenuItem("Pulso F15 (recomendado)");
+            f15ModeItem.CheckOnClick = true;
+            f15ModeItem.Click += delegate { SetPulseMode(PulseMode.F15); };
+
+            mouseModeItem = new ToolStripMenuItem("Pulso de mouse +1/-1 px");
+            mouseModeItem.CheckOnClick = true;
+            mouseModeItem.Click += delegate { SetPulseMode(PulseMode.Mouse); };
+
             var disable = new ToolStripMenuItem("Desativar", null, delegate { Disable(true); });
             var exit = new ToolStripMenuItem("Sair", null, delegate { ExitApp(); });
 
@@ -84,21 +115,20 @@ namespace RWXAwake64
             menu.Items.Add(enable60);
             menu.Items.Add(enable120);
             menu.Items.Add(new ToolStripSeparator());
-            menu.Items.Add(new ToolStripMenuItem("Modo ativo: sistema + tela + pulso de mouse") { Enabled = false });
-            menu.Items.Add(new ToolStripMenuItem("Pulso a cada 45 segundos") { Enabled = false });
+            menu.Items.Add(new ToolStripMenuItem("Modo de atividade") { Enabled = false });
+            menu.Items.Add(f15ModeItem);
+            menu.Items.Add(mouseModeItem);
+            menu.Items.Add(new ToolStripMenuItem("Pulso a cada 59 segundos") { Enabled = false });
             menu.Items.Add(new ToolStripSeparator());
             menu.Items.Add(disable);
             menu.Items.Add(exit);
 
             tray = new NotifyIcon();
             tray.Icon = SystemIcons.Application;
-            tray.Text = "RWXAwake64 v1.1 - Desativado";
+            tray.Text = "RWXAwake64 v1.2 - Desativado";
             tray.ContextMenuStrip = menu;
             tray.Visible = true;
-            tray.DoubleClick += delegate
-            {
-                if (active) Disable(true); else Enable(null);
-            };
+            tray.DoubleClick += delegate { if (active) Disable(true); else Enable(null); };
 
             uiTimer = new System.Windows.Forms.Timer();
             uiTimer.Interval = 1000;
@@ -109,8 +139,23 @@ namespace RWXAwake64
             activityTimer.Interval = ActivityPulseIntervalMs;
             activityTimer.Tick += ActivityTimerTick;
 
+            SetPulseMode(PulseMode.F15);
             Application.ApplicationExit += delegate { RestoreNormalPowerState(); };
-            tray.ShowBalloonTip(1800, "RWXAwake64 v1.1", "Pronto. Ative pelo menu para manter sistema, tela e sessão ativos.", ToolTipIcon.Info);
+
+            tray.ShowBalloonTip(
+                1800,
+                "RWXAwake64 v1.2",
+                "Pronto. F15 é o modo padrão; mouse pulse está disponível como compatibilidade.",
+                ToolTipIcon.Info
+            );
+        }
+
+        private void SetPulseMode(PulseMode mode)
+        {
+            pulseMode = mode;
+            f15ModeItem.Checked = mode == PulseMode.F15;
+            mouseModeItem.Checked = mode == PulseMode.Mouse;
+            UpdateStatus();
         }
 
         private void Enable(TimeSpan? duration)
@@ -123,61 +168,74 @@ namespace RWXAwake64
                 active = false;
                 endTime = null;
                 UpdateStatus();
-                tray.ShowBalloonTip(2500, "RWXAwake64 v1.1", "O Windows não aceitou a solicitação de energia.", ToolTipIcon.Error);
+                tray.ShowBalloonTip(2500, "RWXAwake64 v1.2", "O Windows não aceitou a solicitação de energia.", ToolTipIcon.Error);
                 return;
             }
 
-            // Emite um pulso inicial e depois renova periodicamente.
             SendActivityPulse();
             activityTimer.Start();
-
             UpdateStatus();
+
             string msg = duration.HasValue
-                ? "Ativo por " + FormatDuration(duration.Value) + ". Sistema, tela e pulso de atividade ligados."
-                : "Ativo indefinidamente. Sistema, tela e pulso de atividade ligados.";
-            tray.ShowBalloonTip(1800, "RWXAwake64 v1.1", msg, ToolTipIcon.Info);
+                ? "Ativo por " + FormatDuration(duration.Value) + ". Sistema, tela e atividade ligados."
+                : "Ativo indefinidamente. Sistema, tela e atividade ligados.";
+
+            tray.ShowBalloonTip(1800, "RWXAwake64 v1.2", msg, ToolTipIcon.Info);
         }
 
         private bool ApplyExecutionState()
         {
-            NativeMethods.EXECUTION_STATE flags =
-                NativeMethods.EXECUTION_STATE.ES_CONTINUOUS |
-                NativeMethods.EXECUTION_STATE.ES_SYSTEM_REQUIRED |
-                NativeMethods.EXECUTION_STATE.ES_DISPLAY_REQUIRED;
-
+            var flags = NativeMethods.EXECUTION_STATE.ES_CONTINUOUS |
+                        NativeMethods.EXECUTION_STATE.ES_SYSTEM_REQUIRED |
+                        NativeMethods.EXECUTION_STATE.ES_DISPLAY_REQUIRED;
             return NativeMethods.SetThreadExecutionState(flags) != 0;
         }
 
         private void SendActivityPulse()
         {
-            // Movimento relativo de +1px e -1px. O cursor termina no mesmo ponto,
-            // mas o Windows recebe input real via SendInput e renova o idle timer.
+            lastPulseUsedFallback = false;
+            bool ok = pulseMode == PulseMode.F15 ? SendF15Pulse() : SendMousePulse();
+
+            if (!ok && pulseMode == PulseMode.F15)
+            {
+                ok = SendMousePulse();
+                lastPulseUsedFallback = ok;
+            }
+
+            if (ok)
+                lastActivityPulse = DateTime.Now;
+        }
+
+        private bool SendF15Pulse()
+        {
+            var inputs = new NativeMethods.INPUT[1];
+            inputs[0].type = NativeMethods.INPUT_KEYBOARD;
+            inputs[0].data.ki.wVk = NativeMethods.VK_F15;
+            inputs[0].data.ki.wScan = 0;
+            inputs[0].data.ki.dwFlags = NativeMethods.KEYEVENTF_KEYUP;
+            inputs[0].data.ki.time = 0;
+            inputs[0].data.ki.dwExtraInfo = UIntPtr.Zero;
+
+            return NativeMethods.SendInput(1, inputs, Marshal.SizeOf(typeof(NativeMethods.INPUT))) == 1;
+        }
+
+        private bool SendMousePulse()
+        {
             var inputs = new NativeMethods.INPUT[2];
 
             inputs[0].type = NativeMethods.INPUT_MOUSE;
             inputs[0].data.mi.dx = 1;
             inputs[0].data.mi.dy = 0;
-            inputs[0].data.mi.mouseData = 0;
             inputs[0].data.mi.dwFlags = NativeMethods.MOUSEEVENTF_MOVE;
-            inputs[0].data.mi.time = 0;
             inputs[0].data.mi.dwExtraInfo = UIntPtr.Zero;
 
             inputs[1].type = NativeMethods.INPUT_MOUSE;
             inputs[1].data.mi.dx = -1;
             inputs[1].data.mi.dy = 0;
-            inputs[1].data.mi.mouseData = 0;
             inputs[1].data.mi.dwFlags = NativeMethods.MOUSEEVENTF_MOVE;
-            inputs[1].data.mi.time = 0;
             inputs[1].data.mi.dwExtraInfo = UIntPtr.Zero;
 
-            uint sent = NativeMethods.SendInput(
-                (uint)inputs.Length,
-                inputs,
-                Marshal.SizeOf(typeof(NativeMethods.INPUT))
-            );
-
-            if (sent == inputs.Length)
-                lastActivityPulse = DateTime.Now;
+            return NativeMethods.SendInput(2, inputs, Marshal.SizeOf(typeof(NativeMethods.INPUT))) == 2;
         }
 
         private void ActivityTimerTick(object sender, EventArgs e)
@@ -185,6 +243,7 @@ namespace RWXAwake64
             if (!active) return;
             ApplyExecutionState();
             SendActivityPulse();
+            UpdateStatus();
         }
 
         private void Disable(bool notify)
@@ -192,12 +251,13 @@ namespace RWXAwake64
             active = false;
             endTime = null;
             lastActivityPulse = null;
+            lastPulseUsedFallback = false;
             activityTimer.Stop();
             RestoreNormalPowerState();
             UpdateStatus();
 
             if (notify)
-                tray.ShowBalloonTip(1400, "RWXAwake64 v1.1", "Desativado. O Windows voltou ao comportamento normal.", ToolTipIcon.Info);
+                tray.ShowBalloonTip(1400, "RWXAwake64 v1.2", "Desativado. O Windows voltou ao comportamento normal.", ToolTipIcon.Info);
         }
 
         private void RestoreNormalPowerState()
@@ -212,7 +272,7 @@ namespace RWXAwake64
             if (endTime.HasValue && DateTime.Now >= endTime.Value)
             {
                 Disable(false);
-                tray.ShowBalloonTip(1800, "RWXAwake64 v1.1", "Tempo concluído. O Windows voltou ao comportamento normal.", ToolTipIcon.Info);
+                tray.ShowBalloonTip(1800, "RWXAwake64 v1.2", "Tempo concluído. O Windows voltou ao comportamento normal.", ToolTipIcon.Info);
                 return;
             }
 
@@ -224,11 +284,12 @@ namespace RWXAwake64
             if (!active)
             {
                 statusItem.Text = "Status: Desativado";
-                tray.Text = "RWXAwake64 v1.1 - Desativado";
+                tray.Text = "RWXAwake64 v1.2 - Desativado";
                 return;
             }
 
-            string suffix = " | tela + atividade";
+            string modeText = pulseMode == PulseMode.F15 ? "F15" : "Mouse";
+            if (lastPulseUsedFallback) modeText += " -> Mouse fallback";
 
             if (endTime.HasValue)
             {
@@ -239,13 +300,13 @@ namespace RWXAwake64
                     ? string.Format("{0}:{1:00}:{2:00}", (int)remaining.TotalHours, remaining.Minutes, remaining.Seconds)
                     : string.Format("{0}:{1:00}", (int)remaining.TotalMinutes, remaining.Seconds);
 
-                statusItem.Text = "Status: Ativo - " + shortTime + suffix;
-                tray.Text = "RWXAwake64 v1.1 - Ativo " + shortTime;
+                statusItem.Text = "Status: Ativo - " + shortTime + " | " + modeText + " | 59s";
+                tray.Text = "RWXAwake64 v1.2 - Ativo " + shortTime;
             }
             else
             {
-                statusItem.Text = "Status: Ativo" + suffix;
-                tray.Text = "RWXAwake64 v1.1 - Ativo";
+                statusItem.Text = "Status: Ativo | " + modeText + " | 59s";
+                tray.Text = "RWXAwake64 v1.2 - Ativo";
             }
         }
 
@@ -282,12 +343,7 @@ namespace RWXAwake64
 
             if (!createdNew)
             {
-                MessageBox.Show(
-                    "RWXAwake64 já está em execução na bandeja do sistema.",
-                    "RWXAwake64",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Information
-                );
+                MessageBox.Show("RWXAwake64 já está em execução na bandeja do sistema.", "RWXAwake64", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
