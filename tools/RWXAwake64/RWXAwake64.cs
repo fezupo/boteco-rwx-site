@@ -1,5 +1,6 @@
 using System;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
@@ -62,6 +63,10 @@ namespace RWXAwake64
 
         [DllImport("user32.dll", SetLastError = true)]
         internal static extern uint SendInput(uint nInputs, INPUT[] pInputs, int cbSize);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        internal static extern bool DestroyIcon(IntPtr hIcon);
     }
 
     internal enum PulseMode
@@ -78,6 +83,8 @@ namespace RWXAwake64
         private readonly ToolStripMenuItem mouseModeItem;
         private readonly System.Windows.Forms.Timer uiTimer;
         private readonly System.Windows.Forms.Timer activityTimer;
+        private readonly Icon activeIcon;
+        private readonly Icon inactiveIcon;
 
         private bool active;
         private DateTime? endTime;
@@ -89,6 +96,9 @@ namespace RWXAwake64
 
         internal TrayContext()
         {
+            activeIcon = CreatePowerIcon(Color.FromArgb(64, 220, 90));
+            inactiveIcon = CreatePowerIcon(Color.FromArgb(150, 150, 150));
+
             statusItem = new ToolStripMenuItem("Status: Desativado") { Enabled = false };
 
             var enableForever = new ToolStripMenuItem("Ativar indefinidamente", null, delegate { Enable(null); });
@@ -124,8 +134,8 @@ namespace RWXAwake64
             menu.Items.Add(exit);
 
             tray = new NotifyIcon();
-            tray.Icon = SystemIcons.Application;
-            tray.Text = "RWXAwake64 v1.2 - Desativado";
+            tray.Icon = inactiveIcon;
+            tray.Text = "RWXAwake64 v1.3 | Inativo";
             tray.ContextMenuStrip = menu;
             tray.Visible = true;
             tray.DoubleClick += delegate { if (active) Disable(true); else Enable(null); };
@@ -144,10 +154,37 @@ namespace RWXAwake64
 
             tray.ShowBalloonTip(
                 1800,
-                "RWXAwake64 v1.2",
+                "RWXAwake64 v1.3",
                 "Pronto. F15 é o modo padrão; mouse pulse está disponível como compatibilidade.",
                 ToolTipIcon.Info
             );
+        }
+
+        private static Icon CreatePowerIcon(Color color)
+        {
+            using (var bitmap = new Bitmap(32, 32, System.Drawing.Imaging.PixelFormat.Format32bppArgb))
+            using (var graphics = Graphics.FromImage(bitmap))
+            using (var pen = new Pen(color, 4.0f))
+            {
+                graphics.Clear(Color.Transparent);
+                graphics.SmoothingMode = SmoothingMode.AntiAlias;
+                pen.StartCap = LineCap.Round;
+                pen.EndCap = LineCap.Round;
+
+                graphics.DrawArc(pen, 6, 7, 20, 20, -45, 270);
+                graphics.DrawLine(pen, 16, 4, 16, 14);
+
+                IntPtr hIcon = bitmap.GetHicon();
+                try
+                {
+                    using (var icon = Icon.FromHandle(hIcon))
+                        return (Icon)icon.Clone();
+                }
+                finally
+                {
+                    NativeMethods.DestroyIcon(hIcon);
+                }
+            }
         }
 
         private void SetPulseMode(PulseMode mode)
@@ -168,7 +205,7 @@ namespace RWXAwake64
                 active = false;
                 endTime = null;
                 UpdateStatus();
-                tray.ShowBalloonTip(2500, "RWXAwake64 v1.2", "O Windows não aceitou a solicitação de energia.", ToolTipIcon.Error);
+                tray.ShowBalloonTip(2500, "RWXAwake64 v1.3", "O Windows não aceitou a solicitação de energia.", ToolTipIcon.Error);
                 return;
             }
 
@@ -180,7 +217,7 @@ namespace RWXAwake64
                 ? "Ativo por " + FormatDuration(duration.Value) + ". Sistema, tela e atividade ligados."
                 : "Ativo indefinidamente. Sistema, tela e atividade ligados.";
 
-            tray.ShowBalloonTip(1800, "RWXAwake64 v1.2", msg, ToolTipIcon.Info);
+            tray.ShowBalloonTip(1800, "RWXAwake64 v1.3", msg, ToolTipIcon.Info);
         }
 
         private bool ApplyExecutionState()
@@ -257,7 +294,7 @@ namespace RWXAwake64
             UpdateStatus();
 
             if (notify)
-                tray.ShowBalloonTip(1400, "RWXAwake64 v1.2", "Desativado. O Windows voltou ao comportamento normal.", ToolTipIcon.Info);
+                tray.ShowBalloonTip(1400, "RWXAwake64 v1.3", "Desativado. O Windows voltou ao comportamento normal.", ToolTipIcon.Info);
         }
 
         private void RestoreNormalPowerState()
@@ -272,7 +309,7 @@ namespace RWXAwake64
             if (endTime.HasValue && DateTime.Now >= endTime.Value)
             {
                 Disable(false);
-                tray.ShowBalloonTip(1800, "RWXAwake64 v1.2", "Tempo concluído. O Windows voltou ao comportamento normal.", ToolTipIcon.Info);
+                tray.ShowBalloonTip(1800, "RWXAwake64 v1.3", "Tempo concluído. O Windows voltou ao comportamento normal.", ToolTipIcon.Info);
                 return;
             }
 
@@ -281,15 +318,22 @@ namespace RWXAwake64
 
         private void UpdateStatus()
         {
+            if (tray == null)
+                return;
+
             if (!active)
             {
                 statusItem.Text = "Status: Desativado";
-                tray.Text = "RWXAwake64 v1.2 - Desativado";
+                tray.Icon = inactiveIcon;
+                tray.Text = "RWXAwake64 v1.3 | Inativo";
                 return;
             }
 
             string modeText = pulseMode == PulseMode.F15 ? "F15" : "Mouse";
             if (lastPulseUsedFallback) modeText += " -> Mouse fallback";
+
+            tray.Icon = activeIcon;
+            tray.Text = "RWXAwake64 v1.3 | Ativo | " + (lastPulseUsedFallback ? "Mouse" : modeText);
 
             if (endTime.HasValue)
             {
@@ -301,12 +345,10 @@ namespace RWXAwake64
                     : string.Format("{0}:{1:00}", (int)remaining.TotalMinutes, remaining.Seconds);
 
                 statusItem.Text = "Status: Ativo - " + shortTime + " | " + modeText + " | 59s";
-                tray.Text = "RWXAwake64 v1.2 - Ativo " + shortTime;
             }
             else
             {
                 statusItem.Text = "Status: Ativo | " + modeText + " | 59s";
-                tray.Text = "RWXAwake64 v1.2 - Ativo";
             }
         }
 
@@ -327,6 +369,8 @@ namespace RWXAwake64
             RestoreNormalPowerState();
             tray.Visible = false;
             tray.Dispose();
+            activeIcon.Dispose();
+            inactiveIcon.Dispose();
             ExitThread();
         }
     }
