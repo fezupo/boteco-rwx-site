@@ -67,4 +67,5 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           PAGE_URL: ${{ steps.deployment.outputs.page_url }}
-        run: gh pr comment 1 --repo "$GITHUB_REPOSITORY" --body "✅ GitHub Pages preview deployed successfully: $PAGE_URL"
+        run: |
+          gh pr comment 1 --repo "$GITHUB_REPOSITORY" --body "✅ GitHub Pages preview deployed successfully: $PAGE_URL"
