@@ -4,7 +4,6 @@ on:
   workflow_dispatch:
   schedule:
     # 08:17, 10:17, 12:17, 14:17, 16:17, 18:17 and 20:17 America/Sao_Paulo.
-    # Standard GitHub-hosted runners are free in this public repository.
     - cron: '17 11,13,15,17,19,21,23 * * *'
 
 permissions:
@@ -20,7 +19,28 @@ jobs:
     timeout-minutes: 15
 
     steps:
+      - name: Check free-runner configuration
+        id: config
+        env:
+          ANALYTICS_REPO_TOKEN: ${{ secrets.ANALYTICS_REPO_TOKEN }}
+          YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
+          YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
+          YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
+        run: |
+          if [ -n "$ANALYTICS_REPO_TOKEN" ] && [ -n "$YT_CLIENT_ID" ] && [ -n "$YT_CLIENT_SECRET" ] && [ -n "$YT_REFRESH_TOKEN" ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+            echo "Free analytics runner is configured."
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "Free analytics runner is waiting for repository secrets; skipping without failure."
+          fi
+
+      - name: Configuration pending
+        if: steps.config.outputs.ready != 'true'
+        run: echo "Nothing to do yet. No private hosted-runner minutes were consumed."
+
       - name: Checkout private analytics repository
+        if: steps.config.outputs.ready == 'true'
         uses: actions/checkout@v4
         with:
           repository: fezupo/boteco-rwx-analytics
@@ -29,124 +49,18 @@ jobs:
           fetch-depth: 0
 
       - name: Set up Python
+        if: steps.config.outputs.ready == 'true'
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
 
-      - name: Decide whether collection is due
-        id: freshness
-        working-directory: analytics
-        run: |
-          python - <<'PY'
-          import json
-          import os
-          from datetime import datetime, timedelta, timezone
-          from pathlib import Path
-
-          event = os.environ.get("GITHUB_EVENT_NAME", "")
-          should_collect = event == "workflow_dispatch"
-          reason = f"event={event}"
-
-          if event == "schedule":
-              now_utc = datetime.now(timezone.utc)
-              brt = timezone(timedelta(hours=-3), "BRT")
-              now_brt = now_utc.astimezone(brt)
-              in_window = 7 <= now_brt.hour <= 21
-              age_minutes = float("inf")
-
-              try:
-                  data = json.loads(Path("latest.json").read_text(encoding="utf-8"))
-                  raw = data.get("collected_at_utc") or data.get("collected_at")
-                  if not raw:
-                      raise ValueError("snapshot timestamp is missing")
-                  collected = datetime.fromisoformat(raw.replace("Z", "+00:00"))
-                  if collected.tzinfo is None:
-                      collected = collected.replace(tzinfo=timezone.utc)
-                  age_minutes = max(
-                      0,
-                      (now_utc - collected.astimezone(timezone.utc)).total_seconds() / 60,
-                  )
-                  reason = f"in_window={in_window}, snapshot_age={age_minutes:.1f}m"
-              except Exception as exc:
-                  reason = f"latest.json invalid ({exc}); force collection"
-
-              should_collect = in_window and age_minutes >= 100
-
-          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
-              output.write(f"should_collect={str(should_collect).lower()}\n")
-              output.write(f"reason={reason}\n")
-
-          print(f"Collection due: {should_collect} ({reason})")
-          PY
-
-      - name: Skip fresh snapshot
-        if: steps.freshness.outputs.should_collect != 'true'
-        run: echo "Snapshot is fresh or outside the BRT collection window."
-
       - name: Install dependencies
-        if: steps.freshness.outputs.should_collect == 'true'
+        if: steps.config.outputs.ready == 'true'
         working-directory: analytics
         run: python -m pip install --disable-pip-version-check -r requirements.txt
 
-      - name: Validate OAuth token exchange
-        if: steps.freshness.outputs.should_collect == 'true'
-        working-directory: analytics
-        env:
-          YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
-          YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
-          YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
-        run: |
-          python - <<'PY'
-          import os
-          import time
-          import requests
-
-          names = ("YT_CLIENT_ID", "YT_CLIENT_SECRET", "YT_REFRESH_TOKEN")
-          missing = [name for name in names if not os.environ.get(name)]
-          if missing:
-              raise SystemExit("Missing required GitHub secrets: " + ", ".join(missing))
-
-          response = None
-          last_error = None
-          for attempt in range(1, 4):
-              try:
-                  response = requests.post(
-                      "https://oauth2.googleapis.com/token",
-                      data={
-                          "client_id": os.environ["YT_CLIENT_ID"],
-                          "client_secret": os.environ["YT_CLIENT_SECRET"],
-                          "refresh_token": os.environ["YT_REFRESH_TOKEN"],
-                          "grant_type": "refresh_token",
-                      },
-                      timeout=30,
-                  )
-                  if response.status_code == 200:
-                      print("OAuth token exchange: OK")
-                      raise SystemExit(0)
-                  if response.status_code not in {408, 429, 500, 502, 503, 504}:
-                      break
-                  last_error = f"HTTP {response.status_code}"
-              except requests.RequestException as exc:
-                  last_error = type(exc).__name__
-
-              if attempt < 3:
-                  time.sleep(2 ** (attempt - 1))
-
-          if response is not None:
-              print(f"OAuth token exchange failed: HTTP {response.status_code}")
-              try:
-                  body = response.json()
-                  print("Google error:", body.get("error"))
-                  print("Description:", body.get("error_description"))
-              except Exception:
-                  print("Google returned a non-JSON error body.")
-          elif last_error:
-              print("OAuth token exchange failed:", last_error)
-          raise SystemExit(1)
-          PY
-
       - name: Collect analytics
-        if: steps.freshness.outputs.should_collect == 'true'
+        if: steps.config.outputs.ready == 'true'
         working-directory: analytics
         env:
           YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
@@ -155,7 +69,7 @@ jobs:
         run: python collector/youtube_analytics_collector.py
 
       - name: Validate generated snapshot
-        if: steps.freshness.outputs.should_collect == 'true'
+        if: steps.config.outputs.ready == 'true'
         working-directory: analytics
         run: |
           python - <<'PY'
@@ -165,8 +79,13 @@ jobs:
 
           latest = Path("latest.json")
           data = json.loads(latest.read_text(encoding="utf-8"))
+
           if data.get("schema_version") != 1:
               raise SystemExit("Unexpected snapshot schema version")
+          if not data.get("channel", {}).get("id"):
+              raise SystemExit("YouTube channel id is missing")
+          if not isinstance(data.get("videos"), list):
+              raise SystemExit("Snapshot videos field is invalid")
 
           raw_utc = data.get("collected_at_utc")
           raw_local = data.get("collected_at")
@@ -187,28 +106,26 @@ jobs:
           if not snapshot_path.is_file():
               raise SystemExit(f"Historical snapshot was not created: {snapshot_path}")
           if snapshot_path.read_bytes() != latest.read_bytes():
-              raise SystemExit("latest.json differs from the historical snapshot")
-          if not data.get("channel", {}).get("id"):
-              raise SystemExit("YouTube channel id is missing from the snapshot")
-          if not isinstance(data.get("videos"), list):
-              raise SystemExit("Snapshot videos field is invalid")
+              raise SystemExit("latest.json differs from historical snapshot")
 
           print(f"Snapshot validation: OK ({snapshot_path})")
           PY
 
       - name: Commit snapshot to private analytics repository
-        if: steps.freshness.outputs.should_collect == 'true'
+        if: steps.config.outputs.ready == 'true'
         working-directory: analytics
         run: |
           git config user.name "boteco-rwx-analytics-bot"
           git config user.email "boteco-rwx-analytics-bot@users.noreply.github.com"
           git add latest.json snapshots/
+
           if git diff --cached --quiet; then
             echo "No snapshot changes."
             exit 0
           fi
 
           git commit -m "analytics: snapshot $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+
           for attempt in 1 2 3; do
             if git pull --rebase origin main && git push origin HEAD:main; then
               exit 0
@@ -218,5 +135,6 @@ jobs:
               sleep $((attempt * 5))
             fi
           done
+
           echo "Snapshot push failed after 3 attempts."
           exit 1
