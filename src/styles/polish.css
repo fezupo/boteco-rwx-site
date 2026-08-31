@@ -1,0 +1,95 @@
+@layer base, components, utilities;
+
+@view-transition {
+  navigation: auto;
+}
+
+@layer base {
+  ::selection {
+    background: rgba(255, 180, 36, .28);
+    color: var(--text);
+  }
+
+  [id] {
+    scroll-margin-top: 88px;
+  }
+
+  ::view-transition-old(root) {
+    animation: boteco-out 120ms ease both;
+  }
+
+  ::view-transition-new(root) {
+    animation: boteco-in 180ms ease both;
+  }
+}
+
+@layer components {
+  main > section:not(.hero):not(.page-hero) {
+    content-visibility: auto;
+    contain-intrinsic-size: 700px;
+  }
+
+  .error-page {
+    min-height: calc(100svh - 72px);
+    display: grid;
+    align-items: center;
+  }
+
+  .error-page h1 {
+    max-width: 9ch;
+  }
+
+  .site-header {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+
+  .mobile-menu[open] summary {
+    color: var(--amber);
+    border-color: rgba(255,180,36,.35);
+  }
+
+  .live-ticket-featured {
+    max-width: 900px;
+  }
+
+  .availability-note {
+    margin-top: 1rem;
+    font-size: .9rem;
+  }
+
+  @keyframes boteco-out {
+    to { opacity: 0; transform: translateY(-3px); }
+  }
+
+  @keyframes boteco-in {
+    from { opacity: 0; transform: translateY(5px); }
+  }
+}
+
+@layer utilities {
+  @media (hover: none) {
+    .button:hover,
+    .topic-card:hover {
+      transform: none;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .desktop-nav a,
+    .mobile-menu a,
+    .button {
+      min-height: 44px;
+    }
+
+    body::before {
+      opacity: .03;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    ::view-transition-old(root),
+    ::view-transition-new(root) {
+      animation: none;
+    }
+  }
+}

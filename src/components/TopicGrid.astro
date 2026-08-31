@@ -1,0 +1,13 @@
+---
+import { topics } from '../data/topics';
+---
+
+<div class="topic-grid">
+  {topics.map((topic) => (
+    <article class="topic-card">
+      <span class="topic-number">{topic.icon}</span>
+      <h3>{topic.title}</h3>
+      <p>{topic.text}</p>
+    </article>
+  ))}
+</div>

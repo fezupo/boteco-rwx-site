@@ -1,0 +1,47 @@
+name: site-ci
+
+on:
+  push:
+    branches:
+      - dev/vertical-slice-v1
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: write
+
+concurrency:
+  group: boteco-rwx-site-ci
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.19.0
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Type and Astro check
+        run: npm run check
+
+      - name: Production build for GitHub Pages
+        run: npm run build
+        env:
+          GITHUB_PAGES: 'true'
+
+      - name: Carmack performance budget
+        run: npm run budget
+
+      - name: Publish green DEV prototype through main workflow
+        if: github.event_name == 'push'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run pages-preview.yml --ref main

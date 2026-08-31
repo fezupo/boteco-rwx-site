@@ -1,0 +1,19 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import CrewGrid from '../components/CrewGrid.astro';
+---
+
+<BaseLayout title="A Mesa" description="Quem senta à mesa do Boteco RWX.">
+  <section class="page-hero section-pad">
+    <div class="container">
+      <span class="eyebrow">QUEM SEGURA A CANECA</span>
+      <h1>A Mesa</h1>
+      <p>O Boteco não é um tema. É a conversa que acontece quando a bancada se encontra.</p>
+    </div>
+  </section>
+  <section class="section-pad section-dark">
+    <div class="container">
+      <CrewGrid />
+    </div>
+  </section>
+</BaseLayout>

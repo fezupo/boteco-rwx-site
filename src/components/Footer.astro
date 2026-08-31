@@ -1,0 +1,22 @@
+---
+import { activeExternalLinks, site } from '../config/site';
+---
+
+<footer class="site-footer">
+  <div class="container footer-grid">
+    <div>
+      <strong class="footer-brand">BOTECO RWX</strong>
+      <p>{site.slogan}</p>
+    </div>
+
+    {activeExternalLinks.length > 0 && (
+      <nav class="footer-links" aria-label="Links externos">
+        {activeExternalLinks.map((link) => (
+          <a href={link.url} target="_blank" rel="noreferrer">{link.label}</a>
+        ))}
+      </nav>
+    )}
+
+    <p class="footer-line">O bar fecha. A conversa não.</p>
+  </div>
+</footer>
